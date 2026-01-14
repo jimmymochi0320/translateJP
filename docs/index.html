@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>旅日神隊友 Lite - 精準視覺文字版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&family=Noto+Sans+TC:wght@500;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            touch-action: manipulation;
+        }
+        .active-tab {
+            background-color: #bc002d;
+            color: white;
+            box-shadow: 0 4px 12px rgba(188, 0, 45, 0.2);
+        }
+        .japan-red { color: #bc002d; }
+        .japan-bg { background-color: #bc002d; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <!-- Header -->
+    <header class="w-full max-w-md p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-10">
+        <div>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">旅日神隊友 <span class="text-red-600">Lite</span></h1>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Vision & Text Engine</p>
+        </div>
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+            <span class="text-xl">🇯🇵</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="w-full max-w-md px-4 mb-6 flex gap-2">
+        <button onclick="setMode('vision')" id="btn-vision" class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all active-tab">視覺辨識</button>
+        <button onclick="setMode('text')" id="btn-text" class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all bg-white text-slate-400 shadow-sm">文字溝通</button>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="w-full max-w-md px-4 flex-grow flex flex-col">
+        
+        <!-- VISION MODE -->
+        <section id="mode-vision" class="space-y-4">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col">
+                <div class="aspect-[4/3] bg-slate-50 flex flex-col items-center justify-center relative p-2">
+                    <img id="img-preview" class="hidden w-full h-full object-contain rounded-xl" />
+                    <div id="vision-hint" class="text-center p-6">
+                        <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                        </div>
+                        <p class="text-slate-500 font-bold">拍攝日文招牌或菜單</p>
+                    </div>
+                </div>
+                <div class="p-4 grid grid-cols-2 gap-3 bg-white">
+                    <button onclick="triggerCamera()" class="py-4 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                        拍照
+                    </button>
+                    <button onclick="triggerGallery()" class="py-4 bg-white border-2 border-slate-900 text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        相簿
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TEXT MODE -->
+        <section id="mode-text" class="hidden space-y-4 flex-grow">
+            <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-100 flex flex-col h-full min-h-[400px]">
+                <!-- Lang Selector -->
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <div id="lang-src" class="text-sm font-black text-slate-800 bg-slate-50 px-4 py-2 rounded-xl">中文 (台灣)</div>
+                    <button onclick="swapLanguage()" class="p-2 bg-red-50 text-red-600 rounded-full active:rotate-180 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                    </button>
+                    <div id="lang-target" class="text-sm font-black text-red-600 bg-red-50 px-4 py-2 rounded-xl">日文</div>
+                </div>
+
+                <textarea id="text-input" class="w-full flex-grow p-6 bg-slate-50 rounded-2xl focus:ring-2 focus:ring-red-500 focus:bg-white focus:outline-none text-xl border border-slate-50 resize-none transition-all" placeholder="請輸入欲翻譯內容..."></textarea>
+                
+                <button onclick="handleTranslate()" class="w-full mt-4 py-5 japan-bg text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">
+                    翻譯
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading -->
+        <div id="loader" class="hidden py-12 text-center">
+            <div class="inline-block w-10 h-10 border-4 border-red-100 border-t-red-600 rounded-full animate-spin"></div>
+            <p class="mt-4 font-bold text-slate-500">精準分析中...</p>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-box" class="hidden mt-6 pb-12 animate-in slide-in-from-bottom-4 duration-300">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-red-50">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">翻譯結果</span>
+                    <button onclick="copyResult()" class="text-[10px] font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">複製內容</button>
+                </div>
+                <div id="output-text" class="text-4xl font-black text-slate-900 leading-tight break-words mb-6"></div>
+                <div id="output-explanation" class="hidden text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed"></div>
+            </div>
+            <p class="text-center mt-4 text-[10px] text-slate-400 font-medium">💡 提示：可直接將此畫面出示給對方看</p>
+        </div>
+    </main>
+
+    <!-- Hidden Files -->
+    <input type="file" id="file-camera" accept="image/*" capture="environment" class="hidden" onchange="processFile(this)">
+    <input type="file" id="file-gallery" accept="image/*" class="hidden" onchange="processFile(this)">
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-8 py-3 rounded-full text-sm font-bold shadow-2xl opacity-0 transition-opacity pointer-events-none z-50"></div>
+
+    <script>
+        const apiKey = ""; 
+        const MODEL = "gemini-2.5-flash-preview-09-2025";
+        let isCNtoJP = true;
+        let lastResult = "";
+
+        function setMode(mode) {
+            document.getElementById('btn-vision').className = `flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${mode === 'vision' ? 'active-tab' : 'bg-white text-slate-400 shadow-sm'}`;
+            document.getElementById('btn-text').className = `flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${mode === 'text' ? 'active-tab' : 'bg-white text-slate-400 shadow-sm'}`;
+            document.getElementById('mode-vision').classList.toggle('hidden', mode !== 'vision');
+            document.getElementById('mode-text').classList.toggle('hidden', mode !== 'text');
+            document.getElementById('result-box').classList.add('hidden');
+        }
+
+        function swapLanguage() {
+            isCNtoJP = !isCNtoJP;
+            document.getElementById('lang-src').innerText = isCNtoJP ? "中文 (台灣)" : "日文";
+            document.getElementById('lang-target').innerText = isCNtoJP ? "日文" : "中文 (台灣)";
+            document.getElementById('text-input').placeholder = isCNtoJP ? "請輸入中文..." : "請輸入日文...";
+        }
+
+        function triggerCamera() { document.getElementById('file-camera').click(); }
+        function triggerGallery() { document.getElementById('file-gallery').click(); }
+
+        function processFile(input) {
+            if (!input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('img-preview').src = e.target.result;
+                document.getElementById('img-preview').classList.remove('hidden');
+                document.getElementById('vision-hint').classList.add('hidden');
+                callAPI(e.target.result.split(',')[1], true);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function handleTranslate() {
+            const val = document.getElementById('text-input').value.trim();
+            if (!val) return;
+            callAPI(val, false);
+        }
+
+        async function callAPI(content, isImage, retry = 0) {
+            const loader = document.getElementById('loader');
+            const resultBox = document.getElementById('result-box');
+            loader.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            let sysPrompt;
+            if (isImage) {
+                sysPrompt = `你是一位專業日本旅遊口譯。請分析圖片中的日文並翻譯。
+格式要求：
+[第一行]：最核心的中文翻譯
+---
+[之後]：詳細內容解釋或過敏/警告提示。`;
+            } else {
+                const target = isCNtoJP ? "日文(禮貌體)" : "繁體中文";
+                sysPrompt = `你是一個極簡翻譯機。請將內容翻譯成「${target}」。
+嚴格要求：
+1. 只輸出翻譯結果文字。
+2. 絕對不要有任何解釋、拼音、備註或前言。`;
+            }
+
+            const payload = isImage ? {
+                contents: [{ role: "user", parts: [{ text: "請翻譯這張圖：" }, { inlineData: { mimeType: "image/png", data: content } }] }],
+                systemInstruction: { parts: [{ text: sysPrompt }] }
+            } : {
+                contents: [{ role: "user", parts: [{ text: content }] }],
+                systemInstruction: { parts: [{ text: sysPrompt }] }
+            };
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                const raw = data.candidates[0].content.parts[0].text.trim();
+
+                const outputText = document.getElementById('output-text');
+                const outputExpl = document.getElementById('output-explanation');
+
+                if (isImage) {
+                    const parts = raw.split('---');
+                    outputText.innerText = parts[0].trim();
+                    outputExpl.innerText = (parts[1] || "").trim();
+                    outputExpl.classList.toggle('hidden', !parts[1]);
+                } else {
+                    outputText.innerText = raw;
+                    outputExpl.classList.add('hidden');
+                }
+
+                lastResult = raw;
+                loader.classList.add('hidden');
+                resultBox.classList.remove('hidden');
+            } catch (e) {
+                if (retry < 2) setTimeout(() => callAPI(content, isImage, retry + 1), 1000);
+                else {
+                    loader.classList.add('hidden');
+                    alert("翻譯暫時中斷，請檢查網路。");
+                }
+            }
+        }
+
+        function copyResult() {
+            const el = document.createElement('textarea');
+            el.value = lastResult;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const t = document.getElementById('toast');
+            t.innerText = "已複製內容";
+            t.classList.remove('opacity-0');
+            setTimeout(() => t.classList.add('opacity-0'), 2000);
+        }
+    </script>
+</body>
+</html>
