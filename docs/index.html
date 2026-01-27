@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>旅日神隊友 Pro - 全能溝通版</title>
+    <title>旅日神隊友 Pro - 穩定修復版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&family=Noto+Sans+TC:wght@500;700&display=swap');
@@ -18,14 +18,6 @@
             box-shadow: 0 4px 15px rgba(188, 0, 45, 0.3);
         }
         .japan-bg { background-color: #bc002d; }
-        .mic-active {
-            animation: pulse-red 1.5s infinite;
-        }
-        @keyframes pulse-red {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(188, 0, 45, 0.4); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(188, 0, 45, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(188, 0, 45, 0); }
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center pb-10">
@@ -57,7 +49,7 @@
                     <img id="img-preview" class="hidden w-full h-full object-contain p-2 rounded-[2rem]" />
                     <div id="vision-hint" class="text-center p-6">
                         <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812-1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
                         </div>
                         <p class="text-slate-500 font-bold">拍攝日文招牌或菜單</p>
                     </div>
@@ -72,7 +64,6 @@
         <!-- TALK MODE -->
         <section id="mode-talk" class="hidden space-y-4">
             <div class="bg-white rounded-[2rem] shadow-xl p-6 border border-slate-100 flex flex-col gap-6">
-                <!-- Lang Switch -->
                 <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
                     <span id="lang-from" class="font-black text-slate-800">中文 (台灣)</span>
                     <button onclick="swapLanguage()" class="p-2 bg-red-600 text-white rounded-full active:rotate-180 transition-all shadow-md">
@@ -80,81 +71,43 @@
                     </button>
                     <span id="lang-to" class="font-black text-red-600">日文</span>
                 </div>
-
-                <!-- Input Area -->
                 <div class="flex flex-col gap-4">
                     <textarea id="text-input" class="w-full h-32 p-4 bg-slate-50 rounded-2xl focus:ring-2 focus:ring-red-500 focus:bg-white focus:outline-none text-xl border-none transition-all" placeholder="請輸入欲翻譯內容..."></textarea>
-                    
-                    <div class="flex gap-3">
-                        <button id="mic-btn" onclick="toggleSpeech()" class="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" /></svg>
-                            語音輸入
-                        </button>
-                        <button onclick="handleTranslate()" class="flex-[2] py-4 bg-red-600 text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">翻譯</button>
-                    </div>
+                    <button onclick="handleTranslate()" class="py-4 bg-red-600 text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">翻譯</button>
                 </div>
             </div>
         </section>
 
         <!-- Results Area -->
         <div id="result-box" class="hidden animate-in slide-in-from-bottom-4 duration-300">
-            <div class="bg-white rounded-[2rem] shadow-2xl p-8 border-2 border-red-50 relative overflow-hidden">
+            <div class="bg-white rounded-[2rem] shadow-2xl p-8 border-2 border-red-50">
                 <div class="flex justify-between items-center mb-6">
-                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">翻譯結果 (出示給對方看)</span>
-                    <button id="tts-btn" onclick="playTTS()" class="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
-                    </button>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">翻譯結果</span>
+                    <button onclick="copyResult()" class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">複製內容</button>
                 </div>
                 <div id="output-text" class="text-4xl font-black text-slate-900 leading-tight break-words mb-6"></div>
                 <div id="output-explanation" class="hidden text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed"></div>
             </div>
         </div>
-
     </main>
 
     <!-- Global Loading -->
     <div id="loader" class="hidden fixed inset-0 bg-white/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-red-100 border-t-red-600 rounded-full animate-spin"></div>
-        <p class="mt-4 font-black text-red-600">AI 正在深度翻譯中...</p>
+        <p class="mt-4 font-black text-red-600">正在分析中...</p>
     </div>
 
-    <!-- Hidden Utils -->
+    <!-- Hidden Files -->
     <input type="file" id="f-cam" accept="image/*" capture="environment" class="hidden" onchange="processFile(this)">
     <input type="file" id="f-gal" accept="image/*" class="hidden" onchange="processFile(this)">
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-8 py-3 rounded-full text-sm font-bold shadow-2xl opacity-0 transition-all pointer-events-none">已複製</div>
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-8 py-3 rounded-full text-sm font-bold shadow-2xl opacity-0 transition-all pointer-events-none"></div>
 
     <script>
-        const apiKey = ""; // 執行環境會自動代入，包括你提供的金鑰
-        const MODEL_GEN = "gemini-2.5-flash-preview-09-2025";
-        const MODEL_TTS = "gemini-2.5-flash-preview-tts";
-        
+        const apiKey = ""; // 執行環境會自動填入金鑰
+        const MODEL = "gemini-2.5-flash-preview-09-2025";
         let isCNtoJP = true;
         let lastResult = "";
-        let recognition;
-        let isRecording = false;
-
-        // Init Speech Recognition
-        if ('webkitSpeechRecognition' in window) {
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            
-            recognition.onstart = () => {
-                document.getElementById('mic-btn').classList.add('mic-active', 'bg-red-50', 'text-red-600');
-                isRecording = true;
-            };
-            
-            recognition.onend = () => {
-                document.getElementById('mic-btn').classList.remove('mic-active', 'bg-red-50', 'text-red-600');
-                isRecording = false;
-            };
-            
-            recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript;
-                document.getElementById('text-input').value = text;
-                handleTranslate();
-            };
-        }
+        let currentMimeType = "image/png";
 
         function setMode(mode) {
             document.getElementById('btn-vision').className = `flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${mode === 'vision' ? 'active-tab' : 'bg-white text-slate-400'}`;
@@ -173,18 +126,9 @@
         function openCamera() { document.getElementById('f-cam').click(); }
         function openGallery() { document.getElementById('f-gal').click(); }
 
-        function toggleSpeech() {
-            if (!recognition) return alert("您的設備不支援語音輸入");
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                recognition.lang = isCNtoJP ? 'zh-TW' : 'ja-JP';
-                recognition.start();
-            }
-        }
-
         function processFile(input) {
             if (!input.files[0]) return;
+            currentMimeType = input.files[0].type || "image/png";
             const reader = new FileReader();
             reader.onload = e => {
                 document.getElementById('img-preview').src = e.target.result;
@@ -200,121 +144,83 @@
             if (val) callGemini(val, false);
         }
 
-        async function callGemini(content, isImage, retry = 0) {
+        async function callGemini(content, isImage, retryCount = 0) {
             const loader = document.getElementById('loader');
             const resultBox = document.getElementById('result-box');
             loader.classList.remove('hidden');
             resultBox.classList.add('hidden');
 
             const sysPrompt = isImage ? 
-                `你是一位日本旅遊口譯官。請分析圖片內容。
-                格式：[第一行：最核心翻譯] --- [之後：詳細背景/警告]。` :
-                `你是一個極簡翻譯機。請翻譯成「${isCNtoJP ? '日文(禮貌體)' : '繁體中文'}」。
-                嚴格要求：只輸出翻譯結果，不要解釋，不要拼音，不要前言語。`;
+                `你是一位日本旅遊專家。分析圖片內容並翻譯成繁體中文。格式：核心內容 --- 背景/備註。` :
+                `你是一個翻譯機。精準翻譯成「${isCNtoJP ? '日文(禮貌體)' : '繁體中文'}」。只輸出結果，不要解釋。`;
 
-            const payload = isImage ? {
-                contents: [{ role: "user", parts: [{ text: "翻譯此圖" }, { inlineData: { mimeType: "image/png", data: content } }] }],
-                systemInstruction: { parts: [{ text: sysPrompt }] }
-            } : {
-                contents: [{ role: "user", parts: [{ text: content }] }],
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: isImage ? [
+                        { text: "請翻譯這張圖片的日文內容。" },
+                        { inlineData: { mimeType: currentMimeType, data: content } }
+                    ] : [
+                        { text: content }
+                    ]
+                }],
                 systemInstruction: { parts: [{ text: sysPrompt }] }
             };
 
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_GEN}:generateContent?key=${apiKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                const raw = data.candidates[0].content.parts[0].text.trim();
+
+                if (!response.ok) throw new Error('API Error');
+                
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (!text) throw new Error('Empty result');
 
                 const outputText = document.getElementById('output-text');
                 const outputExpl = document.getElementById('output-explanation');
 
                 if (isImage) {
-                    const parts = raw.split('---');
+                    const parts = text.split('---');
                     outputText.innerText = parts[0].trim();
                     outputExpl.innerText = (parts[1] || "").trim();
                     outputExpl.classList.toggle('hidden', !parts[1]);
                     lastResult = parts[0].trim();
                 } else {
-                    outputText.innerText = raw;
+                    outputText.innerText = text.trim();
                     outputExpl.classList.add('hidden');
-                    lastResult = raw;
-                    // 自動播放 TTS (僅在中翻日時)
-                    if (isCNtoJP) setTimeout(playTTS, 500);
+                    lastResult = text.trim();
                 }
 
                 loader.classList.add('hidden');
                 resultBox.classList.remove('hidden');
-            } catch (e) {
-                if (retry < 5) {
-                    const delay = Math.pow(2, retry) * 1000;
-                    setTimeout(() => callGemini(content, isImage, retry + 1), delay);
+
+            } catch (error) {
+                if (retryCount < 5) {
+                    const delays = [1000, 2000, 4000, 8000, 16000];
+                    setTimeout(() => callGemini(content, isImage, retryCount + 1), delays[retryCount]);
                 } else {
                     loader.classList.add('hidden');
-                    alert("翻譯暫時失敗，請重試");
+                    alert("翻譯失敗次數過多，請檢查網路連線或稍後再試。");
                 }
             }
         }
 
-        async function playTTS() {
-            if (!lastResult) return;
-            const btn = document.getElementById('tts-btn');
-            btn.classList.add('animate-pulse');
-
-            const payload = {
-                contents: [{ parts: [{ text: `Say naturally: ${lastResult}` }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
-                }
-            };
-
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_TTS}:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                const pcm = data.candidates[0].content.parts[0].inlineData.data;
-                const blob = pcmToWav(pcm, 24000);
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                audio.onended = () => btn.classList.remove('animate-pulse');
-                audio.play();
-            } catch (e) {
-                btn.classList.remove('animate-pulse');
-                // Fallback to Web Speech API
-                const utter = new SpeechSynthesisUtterance(lastResult);
-                utter.lang = isCNtoJP ? 'ja-JP' : 'zh-TW';
-                speechSynthesis.speak(utter);
-            }
-        }
-
-        function pcmToWav(base64, rate) {
-            const pcm = Uint8Array.from(atob(base64), c => c.charCodeAt(0)).buffer;
-            const wav = new ArrayBuffer(44 + pcm.byteLength);
-            const view = new DataView(wav);
-            const writeStr = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
-            writeStr(0, 'RIFF');
-            view.setUint32(4, 36 + pcm.byteLength, true);
-            writeStr(8, 'WAVE');
-            writeStr(12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, 1, true);
-            view.setUint32(24, rate, true);
-            view.setUint32(28, rate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            writeStr(36, 'data');
-            view.setUint32(40, pcm.byteLength, true);
-            new Uint8Array(wav, 44).set(new Uint8Array(pcm));
-            return new Blob([wav], { type: 'audio/wav' });
+        function copyResult() {
+            const el = document.createElement('textarea');
+            el.value = lastResult;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const t = document.getElementById('toast');
+            t.innerText = "已複製內容";
+            t.classList.remove('opacity-0');
+            setTimeout(() => t.classList.add('opacity-0'), 2000);
         }
     </script>
 </body>
