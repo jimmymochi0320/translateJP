@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>旅日神隊友 Lite - 精準視覺文字版</title>
+    <title>旅日神隊友 Pro - 全能溝通版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700&family=Noto+Sans+TC:wght@500;700&display=swap');
@@ -15,129 +15,173 @@
         .active-tab {
             background-color: #bc002d;
             color: white;
-            box-shadow: 0 4px 12px rgba(188, 0, 45, 0.2);
+            box-shadow: 0 4px 15px rgba(188, 0, 45, 0.3);
         }
-        .japan-red { color: #bc002d; }
         .japan-bg { background-color: #bc002d; }
+        .mic-active {
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(188, 0, 45, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(188, 0, 45, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(188, 0, 45, 0); }
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center">
+<body class="min-h-screen flex flex-col items-center pb-10">
 
     <!-- Header -->
-    <header class="w-full max-w-md p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-10">
+    <header class="w-full max-w-md p-6 flex justify-between items-center bg-[#f8fafc] sticky top-0 z-20">
         <div>
-            <h1 class="text-2xl font-black text-slate-800 tracking-tight">旅日神隊友 <span class="text-red-600">Lite</span></h1>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Vision & Text Engine</p>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tighter">旅日神隊友 <span class="text-red-600">Pro</span></h1>
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.3em]">Precision Translation</p>
         </div>
         <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
             <span class="text-xl">🇯🇵</span>
         </div>
     </header>
 
-    <!-- Navigation -->
+    <!-- Tabs -->
     <nav class="w-full max-w-md px-4 mb-6 flex gap-2">
         <button onclick="setMode('vision')" id="btn-vision" class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all active-tab">視覺辨識</button>
-        <button onclick="setMode('text')" id="btn-text" class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all bg-white text-slate-400 shadow-sm">文字溝通</button>
+        <button onclick="setMode('talk')" id="btn-talk" class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all bg-white text-slate-400 shadow-sm">對話溝通</button>
     </nav>
 
-    <!-- Main Workspace -->
-    <main class="w-full max-w-md px-4 flex-grow flex flex-col">
+    <!-- Main -->
+    <main class="w-full max-w-md px-4 flex-grow flex flex-col gap-6">
         
         <!-- VISION MODE -->
         <section id="mode-vision" class="space-y-4">
-            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col">
-                <div class="aspect-[4/3] bg-slate-50 flex flex-col items-center justify-center relative p-2">
-                    <img id="img-preview" class="hidden w-full h-full object-contain rounded-xl" />
+            <div class="bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-100 flex flex-col">
+                <div class="aspect-[4/3] bg-slate-50 flex flex-col items-center justify-center relative">
+                    <img id="img-preview" class="hidden w-full h-full object-contain p-2 rounded-[2rem]" />
                     <div id="vision-hint" class="text-center p-6">
                         <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812-1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
                         </div>
                         <p class="text-slate-500 font-bold">拍攝日文招牌或菜單</p>
                     </div>
                 </div>
-                <div class="p-4 grid grid-cols-2 gap-3 bg-white">
-                    <button onclick="triggerCamera()" class="py-4 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
-                        拍照
-                    </button>
-                    <button onclick="triggerGallery()" class="py-4 bg-white border-2 border-slate-900 text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        相簿
-                    </button>
+                <div class="p-4 grid grid-cols-2 gap-3">
+                    <button onclick="openCamera()" class="py-4 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">拍照</button>
+                    <button onclick="openGallery()" class="py-4 bg-white border-2 border-slate-900 text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">相簿</button>
                 </div>
             </div>
         </section>
 
-        <!-- TEXT MODE -->
-        <section id="mode-text" class="hidden space-y-4 flex-grow">
-            <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-100 flex flex-col h-full min-h-[400px]">
-                <!-- Lang Selector -->
-                <div class="flex items-center justify-center gap-4 mb-6">
-                    <div id="lang-src" class="text-sm font-black text-slate-800 bg-slate-50 px-4 py-2 rounded-xl">中文 (台灣)</div>
-                    <button onclick="swapLanguage()" class="p-2 bg-red-50 text-red-600 rounded-full active:rotate-180 transition-all">
+        <!-- TALK MODE -->
+        <section id="mode-talk" class="hidden space-y-4">
+            <div class="bg-white rounded-[2rem] shadow-xl p-6 border border-slate-100 flex flex-col gap-6">
+                <!-- Lang Switch -->
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span id="lang-from" class="font-black text-slate-800">中文 (台灣)</span>
+                    <button onclick="swapLanguage()" class="p-2 bg-red-600 text-white rounded-full active:rotate-180 transition-all shadow-md">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
                     </button>
-                    <div id="lang-target" class="text-sm font-black text-red-600 bg-red-50 px-4 py-2 rounded-xl">日文</div>
+                    <span id="lang-to" class="font-black text-red-600">日文</span>
                 </div>
 
-                <textarea id="text-input" class="w-full flex-grow p-6 bg-slate-50 rounded-2xl focus:ring-2 focus:ring-red-500 focus:bg-white focus:outline-none text-xl border border-slate-50 resize-none transition-all" placeholder="請輸入欲翻譯內容..."></textarea>
-                
-                <button onclick="handleTranslate()" class="w-full mt-4 py-5 japan-bg text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">
-                    翻譯
-                </button>
+                <!-- Input Area -->
+                <div class="flex flex-col gap-4">
+                    <textarea id="text-input" class="w-full h-32 p-4 bg-slate-50 rounded-2xl focus:ring-2 focus:ring-red-500 focus:bg-white focus:outline-none text-xl border-none transition-all" placeholder="請輸入欲翻譯內容..."></textarea>
+                    
+                    <div class="flex gap-3">
+                        <button id="mic-btn" onclick="toggleSpeech()" class="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" /></svg>
+                            語音輸入
+                        </button>
+                        <button onclick="handleTranslate()" class="flex-[2] py-4 bg-red-600 text-white rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-all">翻譯</button>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- Loading -->
-        <div id="loader" class="hidden py-12 text-center">
-            <div class="inline-block w-10 h-10 border-4 border-red-100 border-t-red-600 rounded-full animate-spin"></div>
-            <p class="mt-4 font-bold text-slate-500">精準分析中...</p>
-        </div>
-
-        <!-- Result Section -->
-        <div id="result-box" class="hidden mt-6 pb-12 animate-in slide-in-from-bottom-4 duration-300">
-            <div class="bg-white rounded-3xl shadow-2xl p-8 border-2 border-red-50">
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">翻譯結果</span>
-                    <button onclick="copyResult()" class="text-[10px] font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">複製內容</button>
+        <!-- Results Area -->
+        <div id="result-box" class="hidden animate-in slide-in-from-bottom-4 duration-300">
+            <div class="bg-white rounded-[2rem] shadow-2xl p-8 border-2 border-red-50 relative overflow-hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">翻譯結果 (出示給對方看)</span>
+                    <button id="tts-btn" onclick="playTTS()" class="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                    </button>
                 </div>
                 <div id="output-text" class="text-4xl font-black text-slate-900 leading-tight break-words mb-6"></div>
                 <div id="output-explanation" class="hidden text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100 leading-relaxed"></div>
             </div>
-            <p class="text-center mt-4 text-[10px] text-slate-400 font-medium">💡 提示：可直接將此畫面出示給對方看</p>
         </div>
+
     </main>
 
-    <!-- Hidden Files -->
-    <input type="file" id="file-camera" accept="image/*" capture="environment" class="hidden" onchange="processFile(this)">
-    <input type="file" id="file-gallery" accept="image/*" class="hidden" onchange="processFile(this)">
+    <!-- Global Loading -->
+    <div id="loader" class="hidden fixed inset-0 bg-white/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-red-100 border-t-red-600 rounded-full animate-spin"></div>
+        <p class="mt-4 font-black text-red-600">AI 正在深度翻譯中...</p>
+    </div>
 
-    <!-- Toast -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-8 py-3 rounded-full text-sm font-bold shadow-2xl opacity-0 transition-opacity pointer-events-none z-50"></div>
+    <!-- Hidden Utils -->
+    <input type="file" id="f-cam" accept="image/*" capture="environment" class="hidden" onchange="processFile(this)">
+    <input type="file" id="f-gal" accept="image/*" class="hidden" onchange="processFile(this)">
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-8 py-3 rounded-full text-sm font-bold shadow-2xl opacity-0 transition-all pointer-events-none">已複製</div>
 
     <script>
-        const apiKey = ""; 
-        const MODEL = "gemini-2.5-flash-preview-09-2025";
+        const apiKey = ""; // 執行環境會自動代入，包括你提供的金鑰
+        const MODEL_GEN = "gemini-2.5-flash-preview-09-2025";
+        const MODEL_TTS = "gemini-2.5-flash-preview-tts";
+        
         let isCNtoJP = true;
         let lastResult = "";
+        let recognition;
+        let isRecording = false;
+
+        // Init Speech Recognition
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            recognition.onstart = () => {
+                document.getElementById('mic-btn').classList.add('mic-active', 'bg-red-50', 'text-red-600');
+                isRecording = true;
+            };
+            
+            recognition.onend = () => {
+                document.getElementById('mic-btn').classList.remove('mic-active', 'bg-red-50', 'text-red-600');
+                isRecording = false;
+            };
+            
+            recognition.onresult = (e) => {
+                const text = e.results[0][0].transcript;
+                document.getElementById('text-input').value = text;
+                handleTranslate();
+            };
+        }
 
         function setMode(mode) {
-            document.getElementById('btn-vision').className = `flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${mode === 'vision' ? 'active-tab' : 'bg-white text-slate-400 shadow-sm'}`;
-            document.getElementById('btn-text').className = `flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${mode === 'text' ? 'active-tab' : 'bg-white text-slate-400 shadow-sm'}`;
+            document.getElementById('btn-vision').className = `flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${mode === 'vision' ? 'active-tab' : 'bg-white text-slate-400'}`;
+            document.getElementById('btn-talk').className = `flex-1 py-3 rounded-2xl text-sm font-bold transition-all ${mode === 'talk' ? 'active-tab' : 'bg-white text-slate-400'}`;
             document.getElementById('mode-vision').classList.toggle('hidden', mode !== 'vision');
-            document.getElementById('mode-text').classList.toggle('hidden', mode !== 'text');
+            document.getElementById('mode-talk').classList.toggle('hidden', mode !== 'talk');
             document.getElementById('result-box').classList.add('hidden');
         }
 
         function swapLanguage() {
             isCNtoJP = !isCNtoJP;
-            document.getElementById('lang-src').innerText = isCNtoJP ? "中文 (台灣)" : "日文";
-            document.getElementById('lang-target').innerText = isCNtoJP ? "日文" : "中文 (台灣)";
-            document.getElementById('text-input').placeholder = isCNtoJP ? "請輸入中文..." : "請輸入日文...";
+            document.getElementById('lang-from').innerText = isCNtoJP ? "中文 (台灣)" : "日文";
+            document.getElementById('lang-to').innerText = isCNtoJP ? "日文" : "中文 (台灣)";
         }
 
-        function triggerCamera() { document.getElementById('file-camera').click(); }
-        function triggerGallery() { document.getElementById('file-gallery').click(); }
+        function openCamera() { document.getElementById('f-cam').click(); }
+        function openGallery() { document.getElementById('f-gal').click(); }
+
+        function toggleSpeech() {
+            if (!recognition) return alert("您的設備不支援語音輸入");
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.lang = isCNtoJP ? 'zh-TW' : 'ja-JP';
+                recognition.start();
+            }
+        }
 
         function processFile(input) {
             if (!input.files[0]) return;
@@ -146,40 +190,30 @@
                 document.getElementById('img-preview').src = e.target.result;
                 document.getElementById('img-preview').classList.remove('hidden');
                 document.getElementById('vision-hint').classList.add('hidden');
-                callAPI(e.target.result.split(',')[1], true);
+                callGemini(e.target.result.split(',')[1], true);
             };
             reader.readAsDataURL(input.files[0]);
         }
 
         function handleTranslate() {
             const val = document.getElementById('text-input').value.trim();
-            if (!val) return;
-            callAPI(val, false);
+            if (val) callGemini(val, false);
         }
 
-        async function callAPI(content, isImage, retry = 0) {
+        async function callGemini(content, isImage, retry = 0) {
             const loader = document.getElementById('loader');
             const resultBox = document.getElementById('result-box');
             loader.classList.remove('hidden');
             resultBox.classList.add('hidden');
 
-            let sysPrompt;
-            if (isImage) {
-                sysPrompt = `你是一位專業日本旅遊口譯。請分析圖片中的日文並翻譯。
-格式要求：
-[第一行]：最核心的中文翻譯
----
-[之後]：詳細內容解釋或過敏/警告提示。`;
-            } else {
-                const target = isCNtoJP ? "日文(禮貌體)" : "繁體中文";
-                sysPrompt = `你是一個極簡翻譯機。請將內容翻譯成「${target}」。
-嚴格要求：
-1. 只輸出翻譯結果文字。
-2. 絕對不要有任何解釋、拼音、備註或前言。`;
-            }
+            const sysPrompt = isImage ? 
+                `你是一位日本旅遊口譯官。請分析圖片內容。
+                格式：[第一行：最核心翻譯] --- [之後：詳細背景/警告]。` :
+                `你是一個極簡翻譯機。請翻譯成「${isCNtoJP ? '日文(禮貌體)' : '繁體中文'}」。
+                嚴格要求：只輸出翻譯結果，不要解釋，不要拼音，不要前言語。`;
 
             const payload = isImage ? {
-                contents: [{ role: "user", parts: [{ text: "請翻譯這張圖：" }, { inlineData: { mimeType: "image/png", data: content } }] }],
+                contents: [{ role: "user", parts: [{ text: "翻譯此圖" }, { inlineData: { mimeType: "image/png", data: content } }] }],
                 systemInstruction: { parts: [{ text: sysPrompt }] }
             } : {
                 contents: [{ role: "user", parts: [{ text: content }] }],
@@ -187,8 +221,10 @@
             };
 
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_GEN}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
                 if (!res.ok) throw new Error();
                 const data = await res.json();
@@ -202,34 +238,83 @@
                     outputText.innerText = parts[0].trim();
                     outputExpl.innerText = (parts[1] || "").trim();
                     outputExpl.classList.toggle('hidden', !parts[1]);
+                    lastResult = parts[0].trim();
                 } else {
                     outputText.innerText = raw;
                     outputExpl.classList.add('hidden');
+                    lastResult = raw;
+                    // 自動播放 TTS (僅在中翻日時)
+                    if (isCNtoJP) setTimeout(playTTS, 500);
                 }
 
-                lastResult = raw;
                 loader.classList.add('hidden');
                 resultBox.classList.remove('hidden');
             } catch (e) {
-                if (retry < 2) setTimeout(() => callAPI(content, isImage, retry + 1), 1000);
-                else {
+                if (retry < 5) {
+                    const delay = Math.pow(2, retry) * 1000;
+                    setTimeout(() => callGemini(content, isImage, retry + 1), delay);
+                } else {
                     loader.classList.add('hidden');
-                    alert("翻譯暫時中斷，請檢查網路。");
+                    alert("翻譯暫時失敗，請重試");
                 }
             }
         }
 
-        function copyResult() {
-            const el = document.createElement('textarea');
-            el.value = lastResult;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            const t = document.getElementById('toast');
-            t.innerText = "已複製內容";
-            t.classList.remove('opacity-0');
-            setTimeout(() => t.classList.add('opacity-0'), 2000);
+        async function playTTS() {
+            if (!lastResult) return;
+            const btn = document.getElementById('tts-btn');
+            btn.classList.add('animate-pulse');
+
+            const payload = {
+                contents: [{ parts: [{ text: `Say naturally: ${lastResult}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
+                }
+            };
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_TTS}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                const pcm = data.candidates[0].content.parts[0].inlineData.data;
+                const blob = pcmToWav(pcm, 24000);
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.onended = () => btn.classList.remove('animate-pulse');
+                audio.play();
+            } catch (e) {
+                btn.classList.remove('animate-pulse');
+                // Fallback to Web Speech API
+                const utter = new SpeechSynthesisUtterance(lastResult);
+                utter.lang = isCNtoJP ? 'ja-JP' : 'zh-TW';
+                speechSynthesis.speak(utter);
+            }
+        }
+
+        function pcmToWav(base64, rate) {
+            const pcm = Uint8Array.from(atob(base64), c => c.charCodeAt(0)).buffer;
+            const wav = new ArrayBuffer(44 + pcm.byteLength);
+            const view = new DataView(wav);
+            const writeStr = (o, s) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+            writeStr(0, 'RIFF');
+            view.setUint32(4, 36 + pcm.byteLength, true);
+            writeStr(8, 'WAVE');
+            writeStr(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, rate, true);
+            view.setUint32(28, rate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeStr(36, 'data');
+            view.setUint32(40, pcm.byteLength, true);
+            new Uint8Array(wav, 44).set(new Uint8Array(pcm));
+            return new Blob([wav], { type: 'audio/wav' });
         }
     </script>
 </body>
