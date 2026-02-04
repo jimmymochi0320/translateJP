@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hokkaido Fast Translator (v3.0 Engine)</title>
+    <title>Hokkaido Fast Translator (CHT v3.1)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,7 @@
 <body class="h-screen flex flex-col max-w-md mx-auto bg-white shadow-2xl overflow-hidden">
 
     <header class="bg-white border-b px-4 py-3 flex justify-between items-center shadow-sm z-20">
-        <h1 class="text-lg font-bold text-slate-800 tracking-wide">北海道極速翻譯 🚀</h1>
+        <h1 class="text-lg font-bold text-slate-800 tracking-wide">北海道極速翻譯 ❄️</h1>
         <button onclick="toggleSettings()" class="p-2 text-slate-400 hover:text-slate-600 active:bg-slate-100 rounded-full transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -85,7 +85,7 @@
 
             <div id="imageResult" class="hidden flex-1 bg-white p-4 rounded-xl border border-blue-100 shadow-sm overflow-y-auto">
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">Analysis</span>
+                    <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">中文解析結果</span>
                     <button onclick="copyResult('imageOutput')" class="text-xs text-slate-400 hover:text-blue-500">複製</button>
                 </div>
                 <div id="imageOutput" class="text-base text-slate-800 leading-relaxed whitespace-pre-wrap"></div>
@@ -94,21 +94,22 @@
     </main>
 
     <script>
-        // ============================================
-        //  已強制升級為 Gemini 2.0 Flash (最新穩定版)
-        //  這能解決 1.5 版本 Not Found 的問題
-        // ============================================
+        // ================= CONFIGURATION =================
+        // 使用目前最穩定且快速的 Flash 版本。
+        // 如果堅持要試 3.0 (不保證穩定)，可自行修改為 "gemini-3.0-flash-exp" 或類似名稱。
         const MODEL_NAME = "gemini-2.0-flash"; 
         
         let currentKey = localStorage.getItem("gemini_api_key");
         let compressedImageBase64 = null;
 
+        // ================= INITIALIZATION =================
         if (currentKey) {
             document.getElementById('apiKeyInput').value = currentKey;
         } else {
             toggleSettings();
         }
 
+        // ================= UI FUNCTIONS =================
         function toggleSettings() {
             document.getElementById('settingsPanel').classList.toggle('hidden');
         }
@@ -149,6 +150,7 @@
             navigator.clipboard.writeText(text).then(() => alert("已複製！"));
         }
 
+        // ================= IMAGE HANDLING =================
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -160,7 +162,7 @@
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    const maxDim = 1024; // 壓縮圖片確保速度
+                    const maxDim = 1024; // 壓縮以提升速度
 
                     if (width > height) {
                         if (width > maxDim) { height *= maxDim / width; width = maxDim; }
@@ -194,16 +196,17 @@
             reader.readAsDataURL(file);
         }
 
+        // ================= TRANSLATION LOGIC =================
         async function translateText() {
             const text = document.getElementById('textInput').value.trim();
             if (!text) return alert("請輸入文字！");
             setLoading('btnTranslateText', true);
             
             try {
-                const prompt = `Translate this text accurately for a traveler in Japan.
+                const prompt = `You are a travel translator using gemini 3 technology.
                 Detect language:
-                - If Chinese -> Translate to Japanese (Polite).
-                - If Japanese -> Translate to Traditional Chinese (Taiwan).
+                - If Chinese (Traditional/Simplified) -> Translate to Japanese (Polite form).
+                - If Japanese -> Translate to Traditional Chinese (Taiwan usage).
                 - Output ONLY the translated text.
                 Input: "${text}"`;
 
@@ -222,21 +225,24 @@
             setLoading('btnTranslateImage', true);
             
             try {
-                const prompt = `Identify text in this image for a traveler in Hokkaido.
-                1. Translate main text to Traditional Chinese.
-                2. Explain context (e.g. food ingredients, warning sign).
-                3. Keep it concise.`;
+                // 更新後的強力中文提示詞
+                const prompt = `You are a smart travel assistant for a Taiwanese in Hokkaido.
+                Analyze this image and output a summary EXCLUSIVELY in Traditional Chinese (繁體中文).
+                1. Identify key text (menu, signs) and translate it to Traditional Chinese.
+                2. Explain the context practically for a traveler.
+                3. Do not output English.`;
 
                 const result = await callGeminiVision(prompt, compressedImageBase64);
                 document.getElementById('imageOutput').innerText = result;
                 document.getElementById('imageResult').classList.remove('hidden');
             } catch (e) {
-                alert("錯誤：" + e.message);
+                alert(e.message); // 直接顯示處理過的中文錯誤訊息
             } finally {
                 setLoading('btnTranslateImage', false);
             }
         }
 
+        // ================= API CALLERS & ERROR HANDLING =================
         async function callGemini(textPrompt) {
             if (!currentKey) throw new Error("請先設定 API Key");
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${currentKey}`;
@@ -271,11 +277,18 @@
         async function parseResponse(response) {
             if (!response.ok) {
                 const err = await response.json();
-                // 如果還是報錯，自動提示用戶
-                if(err.error?.message?.includes("not found")) {
-                    throw new Error("模型版本不相容，請確認 API Key 權限");
+                const errMsg = err.error?.message || "";
+
+                // 捕捉 429 Resource Exhausted 錯誤 (點太快)
+                if (response.status === 429 || errMsg.includes("Resource exhausted")) {
+                    throw new Error("⚠️ 您點太快了！免費版 API 需要休息一下 (約 20-30 秒)，請稍後再試。");
                 }
-                throw new Error(err.error?.message || "連線錯誤");
+                // 捕捉模型不存在錯誤
+                if(errMsg.includes("not found")) {
+                    throw new Error("找不到此模型版本，請確認程式碼中的 MODEL_NAME 設定。");
+                }
+                // 其他錯誤
+                throw new Error(errMsg || "網路連線錯誤");
             }
             const data = await response.json();
             return data.candidates[0].content.parts[0].text.trim();
