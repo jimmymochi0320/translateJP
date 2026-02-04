@@ -3,255 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>北海道即時助手 | Pro</title>
+    <title>Hokkaido Fast Translator (v3.0 Engine)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #F8FAFC;
-            --text-color: #0F172A;
-            --accent-color: #2563EB;
-            --error-color: #DC2626;
+        body { font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+        .tab-active { border-bottom: 3px solid #3b82f6; color: #1d4ed8; font-weight: 700; background-color: #eff6ff; }
+        .tab-inactive { color: #64748b; font-weight: 500; }
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%;
+            width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle;
         }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .mode-tab {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .mode-tab.active {
-            background-color: var(--accent-color);
-            color: white;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-        .action-btn {
-            background-color: var(--accent-color);
-            color: white;
-            font-weight: 800;
-            transition: transform 0.1s;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-        }
-        .action-btn:active {
-            transform: scale(0.96);
-        }
-        .action-btn:disabled {
-            background-color: #94A3B8;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-5 min-h-screen flex flex-col">
+<body class="h-screen flex flex-col max-w-md mx-auto bg-white shadow-2xl overflow-hidden">
 
-    <!-- Header -->
-    <header class="mb-5 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-black tracking-tight text-slate-900">HOKKAIDO <span class="text-blue-600">AI</span></h1>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">v3.1 Pro (Auto-Key)</p>
-        </div>
-        <div class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wide">
-            Connected
-        </div>
+    <header class="bg-white border-b px-4 py-3 flex justify-between items-center shadow-sm z-20">
+        <h1 class="text-lg font-bold text-slate-800 tracking-wide">北海道極速翻譯 🚀</h1>
+        <button onclick="toggleSettings()" class="p-2 text-slate-400 hover:text-slate-600 active:bg-slate-100 rounded-full transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        </button>
     </header>
 
-    <!-- Mode Switcher -->
-    <div class="flex bg-slate-200 p-1.5 rounded-2xl mb-6 shadow-inner">
-        <button onclick="switchMode('image')" id="tab-image" class="mode-tab active flex-1 py-3 rounded-xl font-bold text-sm">影像辨識</button>
-        <button onclick="switchMode('text')" id="tab-text" class="mode-tab flex-1 py-3 rounded-xl font-bold text-sm">文字翻譯</button>
+    <div id="settingsPanel" class="hidden absolute top-14 left-0 w-full bg-white p-4 border-b shadow-lg z-30 transition-all">
+        <label class="block text-sm font-bold text-slate-700 mb-1">API Key 設定</label>
+        <div class="flex gap-2">
+            <input type="password" id="apiKeyInput" placeholder="貼上 Key (AIza...)" 
+                   class="flex-1 p-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="saveKey()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold active:bg-slate-900">儲存</button>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">*金鑰安全儲存於本機</p>
     </div>
 
-    <!-- Main Content -->
-    <main class="flex-grow flex flex-col gap-4">
-        
-        <!-- Mode: IMAGE -->
-        <div id="mode-image-content" class="flex flex-col gap-4">
-            <div id="drop-zone" class="relative w-full aspect-[4/3] rounded-3xl bg-slate-100 overflow-hidden flex items-center justify-center shadow-inner border-2 border-slate-200">
-                <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-cover" />
-                <div id="placeholder-icon" class="text-slate-400 flex flex-col items-center">
-                    <div class="p-4 bg-white rounded-2xl shadow-sm mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                    </div>
-                    <span class="text-xs font-black uppercase tracking-wider">點此拍攝照片</span>
-                </div>
-            </div>
+    <div class="flex border-b bg-white">
+        <button onclick="switchTab('text')" id="tabText" class="flex-1 py-4 text-center tab-active text-lg transition-colors">
+            📝 文字互譯
+        </button>
+        <button onclick="switchTab('image')" id="tabImage" class="flex-1 py-4 text-center tab-inactive text-lg transition-colors">
+            📷 圖片秒解
+        </button>
+    </div>
+
+    <main class="flex-1 overflow-y-auto p-4 bg-slate-50 relative">
+        <div id="textView" class="space-y-4 h-full flex flex-col">
+            <textarea id="textInput" placeholder="輸入中文轉日文，或日文轉中文..." 
+                      class="w-full h-40 p-4 text-lg border border-slate-200 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none resize-none transition"></textarea>
             
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="document.getElementById('file-input').click()" class="bg-white border-2 border-slate-200 text-slate-700 font-bold py-4 rounded-2xl flex items-center justify-center">
-                    選取照片
-                </button>
-                <button id="analyze-image-btn" disabled onclick="handleAnalysis('image')" class="action-btn py-4 rounded-2xl flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                    開始分析
-                </button>
-            </div>
-        </div>
-
-        <!-- Mode: TEXT -->
-        <div id="mode-text-content" class="hidden flex flex-col gap-4">
-            <textarea id="text-input" rows="6" class="w-full p-4 rounded-2xl border-2 border-slate-200 text-lg focus:border-blue-500 focus:outline-none resize-none" placeholder="輸入中文或日文..."></textarea>
-            <button onclick="handleAnalysis('text')" class="action-btn py-4 rounded-2xl flex items-center justify-center gap-2 text-lg shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6 6-6"/><path d="m5 16 6 6 6-6"/></svg>
-                翻譯 / Translate
+            <button onclick="translateText()" id="btnTranslateText" 
+                    class="w-full py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-lg font-bold rounded-xl shadow-lg active:scale-[0.98] transition flex justify-center items-center gap-2">
+                翻譯 (Translate)
             </button>
-        </div>
 
-        <input type="file" id="file-input" accept="image/*" class="hidden" onchange="previewImage(event)">
-
-        <!-- Result Section -->
-        <div id="result-container" class="mt-2 hidden">
-            <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-100">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest" id="result-title">RESULT</h2>
-                    <button onclick="copyResult()" class="text-xs font-bold text-blue-600 uppercase">複製</button>
+            <div id="textResult" class="hidden flex-1 bg-white p-4 rounded-xl border border-blue-100 shadow-sm mt-2 overflow-y-auto">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">Result</span>
+                    <button onclick="copyResult('textOutput')" class="text-xs text-slate-400 hover:text-blue-500">複製</button>
                 </div>
-                <!-- Error Message Display -->
-                <div id="error-box" class="hidden bg-red-50 text-red-600 p-4 rounded-xl text-sm font-bold mb-4 flex items-start gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span id="error-msg"></span>
-                </div>
-                <!-- Success Content Display -->
-                <div id="result-area" class="whitespace-pre-wrap text-slate-800 text-lg leading-relaxed"></div>
+                <p id="textOutput" class="text-xl text-slate-800 font-medium leading-relaxed select-text"></p>
             </div>
         </div>
 
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="hidden fixed inset-0 bg-white/90 backdrop-blur-md z-50 flex flex-col items-center justify-center">
-            <div class="w-12 h-12 border-[5px] border-blue-600 border-t-slate-200 rounded-full animate-spin mb-4"></div>
-            <p class="text-slate-500 font-bold text-sm animate-pulse">連線 AI 中...</p>
-        </div>
+        <div id="imageView" class="hidden space-y-4 h-full flex flex-col">
+            <label class="block w-full h-48 border-2 border-dashed border-slate-300 rounded-xl flex flex-col justify-center items-center cursor-pointer bg-white hover:bg-slate-50 transition relative overflow-hidden group">
+                <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                <div id="uploadPrompt" class="text-center group-hover:scale-105 transition">
+                    <span class="text-4xl block mb-2">📸</span>
+                    <span class="text-slate-500 font-medium">拍照或選擇圖片</span>
+                </div>
+                <img id="imagePreview" class="absolute inset-0 w-full h-full object-contain hidden bg-slate-900">
+                <button id="reuploadBtn" class="hidden absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">重拍</button>
+            </label>
 
+            <button onclick="translateImage()" id="btnTranslateImage" disabled
+                    class="w-full py-4 bg-slate-300 text-white text-lg font-bold rounded-xl shadow-none transition flex justify-center items-center gap-2 cursor-not-allowed">
+                請先選取圖片
+            </button>
+
+            <div id="imageResult" class="hidden flex-1 bg-white p-4 rounded-xl border border-blue-100 shadow-sm overflow-y-auto">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-blue-500 uppercase tracking-wider">Analysis</span>
+                    <button onclick="copyResult('imageOutput')" class="text-xs text-slate-400 hover:text-blue-500">複製</button>
+                </div>
+                <div id="imageOutput" class="text-base text-slate-800 leading-relaxed whitespace-pre-wrap"></div>
+            </div>
+        </div>
     </main>
 
     <script>
-        // 直接內嵌 API KEY
-        const apiKey = "AIzaSyCiqgUBUNexiRagdufarXiLhp3r8M6uGUQ";
+        // ============================================
+        //  已強制升級為 Gemini 2.0 Flash (最新穩定版)
+        //  這能解決 1.5 版本 Not Found 的問題
+        // ============================================
+        const MODEL_NAME = "gemini-3.0-flash"; 
         
-        let currentBase64Image = null;
-        let currentMode = 'image';
+        let currentKey = localStorage.getItem("gemini_api_key");
+        let compressedImageBase64 = null;
 
-        function switchMode(mode) {
-            currentMode = mode;
-            const imgContent = document.getElementById('mode-image-content');
-            const textContent = document.getElementById('mode-text-content');
-            
-            document.getElementById('tab-image').classList.toggle('active', mode === 'image');
-            document.getElementById('tab-text').classList.toggle('active', mode === 'text');
-
-            if (mode === 'image') {
-                imgContent.classList.remove('hidden');
-                textContent.classList.add('hidden');
-            } else {
-                imgContent.classList.add('hidden');
-                textContent.classList.remove('hidden');
-            }
-            document.getElementById('result-container').classList.add('hidden');
+        if (currentKey) {
+            document.getElementById('apiKeyInput').value = currentKey;
+        } else {
+            toggleSettings();
         }
 
-        function previewImage(event) {
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('hidden');
+        }
+
+        function saveKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem("gemini_api_key", key);
+                currentKey = key;
+                toggleSettings();
+                alert("✅ 金鑰已儲存！");
+            } else {
+                alert("❌ 請輸入 API Key");
+            }
+        }
+
+        function switchTab(tab) {
+            const textView = document.getElementById('textView');
+            const imageView = document.getElementById('imageView');
+            const tabText = document.getElementById('tabText');
+            const tabImage = document.getElementById('tabImage');
+
+            if(tab === 'text') {
+                textView.classList.remove('hidden');
+                imageView.classList.add('hidden');
+                tabText.className = "flex-1 py-4 text-center tab-active text-lg transition-colors";
+                tabImage.className = "flex-1 py-4 text-center tab-inactive text-lg transition-colors";
+            } else {
+                textView.classList.add('hidden');
+                imageView.classList.remove('hidden');
+                tabText.className = "flex-1 py-4 text-center tab-inactive text-lg transition-colors";
+                tabImage.className = "flex-1 py-4 text-center tab-active text-lg transition-colors";
+            }
+        }
+
+        function copyResult(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => alert("已複製！"));
+        }
+
+        function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentBase64Image = e.target.result.split(',')[1];
-                document.getElementById('image-preview').src = e.target.result;
-                document.getElementById('image-preview').classList.remove('hidden');
-                document.getElementById('placeholder-icon').classList.add('hidden');
-                document.getElementById('analyze-image-btn').disabled = false;
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1024; // 壓縮圖片確保速度
+
+                    if (width > height) {
+                        if (width > maxDim) { height *= maxDim / width; width = maxDim; }
+                    } else {
+                        if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = dataUrl;
+                    preview.classList.remove('hidden');
+                    document.getElementById('uploadPrompt').classList.add('hidden');
+                    document.getElementById('reuploadBtn').classList.remove('hidden');
+
+                    const btn = document.getElementById('btnTranslateImage');
+                    btn.disabled = false;
+                    btn.classList.remove('bg-slate-300', 'cursor-not-allowed');
+                    btn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'shadow-lg');
+                    btn.innerHTML = "解析圖片內容 (Analyze)";
+
+                    compressedImageBase64 = dataUrl.split(',')[1];
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        async function handleAnalysis(type) {
-            const textInput = document.getElementById('text-input').value;
-            if (type === 'image' && !currentBase64Image) return;
-            if (type === 'text' && !textInput.trim()) return;
-
-            // UI Reset
-            const resultContainer = document.getElementById('result-container');
-            const resultArea = document.getElementById('result-area');
-            const errorBox = document.getElementById('error-box');
-            const loadingOverlay = document.getElementById('loading-overlay');
+        async function translateText() {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) return alert("請輸入文字！");
+            setLoading('btnTranslateText', true);
             
-            resultContainer.classList.add('hidden');
-            errorBox.classList.add('hidden');
-            resultArea.innerHTML = "";
-            loadingOverlay.classList.remove('hidden');
-
-            let systemInstruction = "";
-            let parts = [];
-
-            if (type === 'image') {
-                systemInstruction = `你是一位精通日文與中文的北海道旅遊導遊與地質學專家。
-1. 翻譯圖片中的日文內容為中文。
-2. 若內容為「路況」或「天氣」，請特別針對「雪地駕駛」給出安全建議。
-3. 若內容為「地質說明」，請解釋其地學成因。
-4. 語氣專業、簡潔，不要廢話。`;
-                parts = [{ text: "請分析此圖" }, { inlineData: { mimeType: "image/png", data: currentBase64Image } }];
-            } else {
-                systemInstruction = `你是一個中日翻譯機。
-1. 自動偵測輸入語言。
-2. 中文 -> 翻譯成日文 (附假名拼音)。
-3. 日文 -> 翻譯成中文。
-4. 只給我翻譯結果，不要解釋。`;
-                parts = [{ text: textInput }];
-            }
-
-            const payload = {
-                contents: [{ role: "user", parts: parts }],
-                systemInstruction: { parts: [{ text: systemInstruction }] }
-            };
-
             try {
-                // 使用 Google Generative AI API
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                const prompt = `Translate this text accurately for a traveler in Japan.
+                Detect language:
+                - If Chinese -> Translate to Japanese (Polite).
+                - If Japanese -> Translate to Traditional Chinese (Taiwan).
+                - Output ONLY the translated text.
+                Input: "${text}"`;
 
-                // 錯誤處理邏輯
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    let errorMsg = `API 錯誤 (${response.status})`;
-                    
-                    if (response.status === 400) errorMsg = "API Key 無效。請檢查程式碼中的 Key。";
-                    if (response.status === 403) errorMsg = "權限不足，請確認 Key 的使用範圍。";
-                    if (response.status === 429) errorMsg = "請求次數過多，請稍後再試。";
-                    
-                    throw new Error(errorMsg);
-                }
-
-                const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (text) {
-                    resultArea.innerText = text;
-                    resultContainer.classList.remove('hidden');
-                } else {
-                    throw new Error("AI 沒有回傳任何內容，請重試。");
-                }
-
-            } catch (error) {
-                document.getElementById('error-msg').innerText = error.message;
-                errorBox.classList.remove('hidden');
-                resultContainer.classList.remove('hidden');
+                const result = await callGemini(prompt);
+                document.getElementById('textOutput').innerText = result;
+                document.getElementById('textResult').classList.remove('hidden');
+            } catch (e) {
+                alert("錯誤：" + e.message);
             } finally {
-                loadingOverlay.classList.add('hidden');
-                // 平滑捲動
-                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                setLoading('btnTranslateText', false);
             }
         }
 
-        function copyResult() {
-            const text = document.getElementById('result-area').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("已複製到剪貼簿！");
+        async function translateImage() {
+            if (!compressedImageBase64) return;
+            setLoading('btnTranslateImage', true);
+            
+            try {
+                const prompt = `Identify text in this image for a traveler in Hokkaido.
+                1. Translate main text to Traditional Chinese.
+                2. Explain context (e.g. food ingredients, warning sign).
+                3. Keep it concise.`;
+
+                const result = await callGeminiVision(prompt, compressedImageBase64);
+                document.getElementById('imageOutput').innerText = result;
+                document.getElementById('imageResult').classList.remove('hidden');
+            } catch (e) {
+                alert("錯誤：" + e.message);
+            } finally {
+                setLoading('btnTranslateImage', false);
+            }
+        }
+
+        async function callGemini(textPrompt) {
+            if (!currentKey) throw new Error("請先設定 API Key");
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${currentKey}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: textPrompt }] }] })
             });
+            return parseResponse(response);
+        }
+
+        async function callGeminiVision(textPrompt, base64Image) {
+            if (!currentKey) throw new Error("請先設定 API Key");
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${currentKey}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: textPrompt },
+                            { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+                        ]
+                    }]
+                })
+            });
+            return parseResponse(response);
+        }
+
+        async function parseResponse(response) {
+            if (!response.ok) {
+                const err = await response.json();
+                // 如果還是報錯，自動提示用戶
+                if(err.error?.message?.includes("not found")) {
+                    throw new Error("模型版本不相容，請確認 API Key 權限");
+                }
+                throw new Error(err.error?.message || "連線錯誤");
+            }
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text.trim();
+        }
+
+        function setLoading(btnId, isLoading) {
+            const btn = document.getElementById(btnId);
+            const originalText = btnId === 'btnTranslateText' ? '翻譯 (Translate)' : '解析圖片內容 (Analyze)';
+            
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="loader"></span> 處理中...`;
+                btn.classList.add('opacity-75');
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                btn.classList.remove('opacity-75');
+            }
         }
     </script>
 </body>
